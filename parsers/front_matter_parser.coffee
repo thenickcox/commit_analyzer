@@ -21,7 +21,10 @@ BUILD_FAILURE = 0
 FrontMatterParser =
   parse: (file) ->
     return if fileIsIgnored(file.name)
+    console.log file.path
     frontMatter.parseFile file.path, (err, fileText) ->
+      console.log 'file text:'
+      console.log fileText
 
       if err or isEmptyObject(fileText.attributes)
         console.log 'build failure!'

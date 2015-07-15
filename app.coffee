@@ -22,19 +22,20 @@ linkParser        = require('./parsers/link_parser')
 App =
   analyze: ->
     readdirp(@readOpts()).on 'data', (file) =>
+      console.log file.name
       _.each @parsers, (parser) ->
         parser.parse(file)
 
-  parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
-  #parsers: [fileParser]
+  #parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
+  parsers: [frontMatterParser]
 
   # Uncomment for production files
-  directoryFilters: ['!node_modules', '!Release Notes']
-  fileFilters: '*.md'
+  #directoryFilters: ['!node_modules', '!Release Notes']
+  #fileFilters: '*.md'
 
   # Uncomment for test files
-  #directoryFilters: ['Accounts & Users']
-  #fileFilters: 'creating-users.md'
+  directoryFilters: ['Accounts & Users']
+  fileFilters: '*.md'
 
   readOpts: ->
     root: path.join(__dirname, '..')
