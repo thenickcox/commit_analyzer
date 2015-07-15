@@ -29,12 +29,12 @@ App =
   #parsers: [fileParser]
 
   # Uncomment for production files
-  #directoryFilters: ['!node_modules', '!Release Notes']
-  #fileFilters: '*.md'
+  directoryFilters: ['!node_modules', '!Release Notes']
+  fileFilters: '*.md'
 
   # Uncomment for test files
-  directoryFilters: ['Accounts & Users']
-  fileFilters: 'creating-users.md'
+  #directoryFilters: ['Accounts & Users']
+  #fileFilters: 'creating-users.md'
 
   readOpts: ->
     root: path.join(__dirname, '..')
