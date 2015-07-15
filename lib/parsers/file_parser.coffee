@@ -27,7 +27,7 @@ FileParser =
   otherDirMarkdowns: []
 
   currentPath: ''
-  projectDir: __dirname
+  projectDir: path.join(__dirname, '..', '..')
 
   parse: (file) ->
     @currentPath = file.fullParentDir
@@ -53,7 +53,7 @@ FileParser =
 
   checkRelativeImages: (images) ->
     _.each images, (file) =>
-      fs.open path.join(__dirname, file), 'r', (err, _) =>
+      fs.open path.join(@projectDir, 'images', file), 'r', (err, _) =>
         @printErrorAndReturnFailure(file) if err
 
   checkSameDirMarkdowns: (files, curPath) ->

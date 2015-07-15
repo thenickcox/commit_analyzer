@@ -15,7 +15,8 @@ _      = require('underscore')
 
 BUILD_SUCCESS = 1
 BUILD_FAILURE = 0
-STATUS_CODE_RANGES = ['4', '5']
+ERROR_CODE_RANGE_START = 400
+
 
 RegExplorer =
   link: /(https?:\/\/?)([\da-z\.-]+\.[a-z\.]{2,6}[\/\w\.-])(.*)"/
@@ -40,20 +41,21 @@ LinkParser =
   validateHttps: (link) ->
     https.get(link, (res, err) =>
       statusCode = res.statusCode
-      @handleResponse(statusCode, link)
+      @handleResponse(link, statusCode)
     ).on 'error', =>
-      @klogError(statusCode, link)
+      statusCode = 404
+      @logError(link, statusCode)
 
   validateHttp: (link) ->
     http.get(link, (res, err) =>
       statusCode = res.statusCode
-      @handleResponse(statusCode, link)
+      @handleResponse(link, statusCode)
     ).on 'error', =>
-      @logError(statusCode, link)
+      statusCode = 404
+      @logError(link, statusCode)
 
   handleResponse: (statusCode, link) ->
-    firstDigit = statusCode.toString()[0]
-    @logError(link, statusCode) if STATUS_CODE_RANGES.indexOf(firstDigit) >= 0
+    @logError(link, statusCode) if statusCode >= ERROR_CODE_RANGE_START
 
   logError: (link, statusCode) ->
     console.log 'Error!'

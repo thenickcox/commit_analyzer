@@ -18,28 +18,27 @@ markdownParser    = require('./parsers/markdown_parser')
 fileParser        = require('./parsers/file_parser')
 linkParser        = require('./parsers/link_parser')
 
-#parsers = [frontMatterParser, markdownParser, fileParser, linkParser]
-parsers = [fileParser]
 
-#
-# Execution
-#
+App =
+  analyze: ->
+    readdirp(@readOpts()).on 'data', (file) =>
+      _.each @parsers, (parser) ->
+        parser.parse(file)
 
-# Uncomment for production files
-#directoryFilters = ['!node_modules', '!Release Notes']
-#fileFilters      = '*.md'
+  parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
+  #parsers: [fileParser]
 
-# Uncomment for test files
-directoryFilters = ['Accounts & Users']
-fileFilters      = 'creating-users.md'
+  # Uncomment for production files
+  #directoryFilters: ['!node_modules', '!Release Notes']
+  #fileFilters: '*.md'
 
-readOpts =
-  root: path.join(__dirname)
-  fileFilter: fileFilters
-  directoryFilter: directoryFilters
+  # Uncomment for test files
+  directoryFilters: ['Accounts & Users']
+  fileFilters: 'creating-users.md'
 
+  readOpts: ->
+    root: path.join(__dirname, '..')
+    fileFilter: @fileFilters
+    directoryFilter: @directoryFilters
 
-stream = readdirp(readOpts).on('data', (file) ->
-  _.each parsers, (parser) ->
-    parser.parse(file)
-)
+App.analyze()
