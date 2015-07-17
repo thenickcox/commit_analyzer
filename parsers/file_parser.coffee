@@ -50,7 +50,7 @@ FileParser =
     @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath)
     @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath)
 
-    failed = if App.failures.length then true else false
+    failed = true if App.failures.length
     @relativeImages = @sameDirMarkdowns = @otherDirMarkdowns = []
 
     failed
@@ -81,7 +81,7 @@ FileParser =
         @printErrorAndReturnFailure(resolvedPath, refFile)
 
   printErrorAndReturnFailure: (file, refFile) ->
-    console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n".red
+    console.log "\nFile '#{file}' not found in this repository (referenced from '#{refFile}')\n".red
     App.failures.push file
 
 

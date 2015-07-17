@@ -17,15 +17,17 @@ markdownParser    = require('./parsers/markdown_parser')
 fileParser        = require('./parsers/file_parser')
 linkParser        = require('./parsers/link_parser')
 
+F =
+  failed: null
+
 App =
-  failed: false
   analyze: ->
-    failed = false
     readdirp @readOpts(), (file) =>
       _.each @parsers, (parser) =>
-        @failed = parser.parse(file, @failed)
+        failed = F.failed
+        F.failed = parser.parse(file, failed)
     , (err, res) =>
-      if @failed then process.exit(1) else process.exit(0)
+      if F.failed then process.exit(1) else process.exit(0)
 
   parsers: [frontMatterParser, markdownParser, fileParser]
   #parsers: [fileParser]

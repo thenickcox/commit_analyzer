@@ -18,10 +18,10 @@ MarkdownParser =
         marked(data)
       catch error
         console.log e
-        console.log "File '#{file.fullPath}' failed markdown parsing.\n".red
+        console.log "\nFile '#{file.fullPath}' failed markdown parsing.\n"
         App.failures.push file.fullPath
 
-    failed = if App.failures.length then true else false
+    failed = true if App.failures.length
     failed
 
 module.exports = MarkdownParser
