@@ -46,7 +46,7 @@ LinkParser =
       status = res.status
       @logError(link, null, status, file) if status >= ERROR_CODE_RANGE_START
     catch error
-      @logError(link, error.stack.slice(0, 100), null, file, failures)
+      @logError(link, error.stack.slice(0, 100), null, file)
 
   logError: (link, status, errorMsg, file) ->
     extraMsg = if status then "response #{status}." else "error '#{errorMsg}'."
