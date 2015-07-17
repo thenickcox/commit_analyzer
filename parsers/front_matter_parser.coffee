@@ -1,6 +1,7 @@
 frontMatter = require('json-front-matter')
 path        = require('path')
 fs          = require('fs')
+colors      = require('colors')
 _           = require('underscore')
 
 App =
@@ -17,7 +18,7 @@ keys = (obj) -> Object.getOwnPropertyNames(obj)
 
 FrontMatterParser =
   parse: (file, failed) ->
-    console.log "."
+    process.stdout.write "."
     return if fileIsIgnored(file.name)
 
     output = frontMatter.parse fs.readFileSync(file.fullPath, 'utf-8')
@@ -26,9 +27,8 @@ FrontMatterParser =
     attrDiff    = _.difference requiredAttrs, fileAttrs
     missingAttr = _.intersection(attrDiff, requiredAttrs)
     if missingAttr.length
-      console.log 'Build failure!'
-      console.log "File '#{file.fullPath}' did not contain required attributes in the front-matter."
-      console.log "Required attributres are #{requiredAttrs.join(', ')}. File was missing a value for the following attibute(s): #{missingAttr.join(', ')}.\n"
+      console.log "File '#{file.fullPath}' did not contain required attributes in the front-matter.".red
+      console.log "Required attributres are #{requiredAttrs.join(', ')}. File was missing a value for the following attibute(s): #{missingAttr.join(', ')}.\n".red
       App.failures.push file.fullPath
 
     failed = if App.failures.length then true else false

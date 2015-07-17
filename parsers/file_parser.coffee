@@ -5,6 +5,7 @@
 fs         = require('fs')
 path       = require('path')
 marked     = require('marked')
+colors     = require('colors')
 _          = require('underscore')
 
 
@@ -28,7 +29,7 @@ FileParser =
 
   parse: (file, failed) ->
     App.failures = []
-    console.log "."
+    process.stdout.write "."
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'
@@ -80,8 +81,7 @@ FileParser =
         @printErrorAndReturnFailure(resolvedPath, refFile)
 
   printErrorAndReturnFailure: (file, refFile) ->
-    console.log 'Build failed!'
-    console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n"
+    console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n".red
     App.failures.push file
 
 
