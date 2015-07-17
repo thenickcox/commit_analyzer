@@ -27,6 +27,7 @@ FrontMatterParser =
       console.log "Required attributres are #{requiredAttrs.join(', ')}. File was missing a value for the following attibute(s): #{missingAttr.join(', ')}.\n"
       failures.push file.fullPath
 
+    failures = _.compact failures
     failures
 
 

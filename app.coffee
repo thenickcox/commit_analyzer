@@ -34,7 +34,7 @@ App =
       if failures.length then process.exit(1) else process.exit(0)
 
   parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
-  #parsers: [linkParser, fileParser]
+  #parsers: [frontMatterParser]
 
   # Uncomment for production files
   directoryFilters: ['!node_modules', '!Release Notes']
