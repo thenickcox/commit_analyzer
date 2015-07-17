@@ -18,15 +18,23 @@ markdownParser    = require('./parsers/markdown_parser')
 fileParser        = require('./parsers/file_parser')
 linkParser        = require('./parsers/link_parser')
 
+Failures =
+  failed: []
 
 App =
   analyze: ->
-    readdirp(@readOpts()).on 'data', (file) =>
-      _.each @parsers, (parser) ->
-        parser.parse(file)
+    appFailures = Failures.failed
+    readdirp @readOpts(), (file) =>
+      _.each @parsers, (parser) =>
+        failures = parser.parse(file, appFailures)
+        appFailures.push failures
+    , (err, res) ->
+      failures = _.compact _.flatten appFailures
+      failures = _.uniq failures
+      if failures.length then process.exit(1) else process.exit(0)
 
   #parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
-  parsers: [fileParser]
+  parsers: [linkParser, fileParser]
 
   # Uncomment for production files
   #directoryFilters: ['!node_modules', '!Release Notes']

@@ -2,64 +2,58 @@
 # Modules
 #
 
-http   = require('http')
-https  = require('https')
-path   = require('path')
-fs     = require('fs')
-marked = require('marked')
-_      = require('underscore')
+request = require('urllib-sync').request
+path    = require('path')
+fs      = require('fs')
+marked  = require('marked')
+_       = require('underscore')
 
 #
 # CONSTANTS
 #
 
-BUILD_SUCCESS = 1
-BUILD_FAILURE = 0
 ERROR_CODE_RANGE_START = 400
 
 
 RegExplorer =
-  link: /(https?:\/\/?)([\da-z\.-]+\.[a-z\.]{2,6}[\/\w\.-])(.*)"/
-  https: /^https:\/\//
+  link: /(https?:\/\/?)([\da-z\.-]+\.[a-z\.]{2,6}[\/\w\-].*?)"/
+
+App =
+  failures: []
 
 LinkParser =
   linkMatches: []
-  parse: (file) ->
-    fs.readFile file.fullPath, 'utf-8', (err, data) =>
-      markdown = marked(data).split("\n")
+  parse: (file, failures) ->
+    deferred = Q.defer()
 
-      _.each markdown, (line) =>
-        linkMatch = RegExplorer.link.exec(line)
-        @linkMatches.push linkMatch[0].slice(0,-1) if linkMatch
-      @validateLinks()
+    output = fs.readFileSync file.fullPath, 'utf-8'
+    markdown = marked(output).split("\n")
 
-  validateLinks: ->
-    _.each @linkMatches, (link) =>
-      if RegExplorer.https.exec(link) then @validateHttps(link) else @validateHttp(link)
-    BUILD_SUCCESS
+    _.each markdown, (line) =>
+      line = line.replace(/&amp;/g, '&')
+      linkMatch = RegExplorer.link.exec(line)
+      @linkMatches.push linkMatch[0].slice(0,-1) if linkMatch
 
-  validateHttps: (link) ->
-    https.get(link, (res, err) =>
-      statusCode = res.statusCode
-      @handleResponse(link, statusCode)
-    ).on 'error', =>
-      statusCode = 404
-      @logError(link, statusCode)
+    @validateLinks(file.fullPath, failures, deferred)
+    deferred.promise
 
-  validateHttp: (link) ->
-    http.get(link, (res, err) =>
-      statusCode = res.statusCode
-      @handleResponse(link, statusCode)
-    ).on 'error', =>
-      statusCode = 404
-      @logError(link, statusCode)
+  validateLinks: (file, failures, deferred) ->
+    _.each @linkMatches, (link) => @validateLink(link, file, failures)
+    deferred.resolve(failures)
 
-  handleResponse: (statusCode, link) ->
-    @logError(link, statusCode) if statusCode >= ERROR_CODE_RANGE_START
+  validateLink: (link, file, failures) ->
+    try
+      res = request(link)
+      status = res.status
+      @logError(link, null, status, file, failures) if status >= ERROR_CODE_RANGE_START
+    catch error
+      @logError(link, error.stack.slice(0, 100), null, file, failures)
 
-  logError: (link, statusCode) ->
-    console.log 'Error!'
-    console.log "#{link} got a server response of #{statusCode}."
-    BUILD_FAILURE
+  logError: (link, status, errorMsg, file, failures) ->
+    extraMsg = if status then "response #{status}." else "error '#{errorMsg}'."
+    console.log 'Build failed!'
+    console.log "Reaching '#{link}' failed for the following reason: #{extraMsg}"
+    console.log "Link referenced in '#{file}'\n"
+    failures.push link
 
 module.exports = LinkParser

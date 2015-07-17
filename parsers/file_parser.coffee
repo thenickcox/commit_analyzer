@@ -7,12 +7,9 @@ path       = require('path')
 marked     = require('marked')
 _          = require('underscore')
 
-#
-# CONSTANTS
-#
 
-BUILD_SUCCESS = 1
-BUILD_FAILURE = 0
+App =
+  failures: []
 
 RegExplorer =
   sameDirMarkdownLink:  /href="(?!\.\.)(.*\.md)/
@@ -29,11 +26,12 @@ FileParser =
   currentPath: ''
   projectDir: path.join(__dirname, '..', '..')
 
-  parse: (file) ->
+  parse: (file, failures) ->
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'
     markdown = marked(output).split("\n")
+
     _.each markdown, (line) =>
       line = line.replace(/&amp;/g, '&')
 
@@ -41,37 +39,45 @@ FileParser =
       otherDirMarkdownFileMatch = RegExplorer.otherDirMarkdownLink.exec(line)
       relativeImageFileMatch = RegExplorer.relativeImageLink.exec(line)
 
+      @relativeImages.push relativeImageFileMatch[1] if relativeImageFileMatch
       @sameDirMarkdowns.push sameDirMarkdownFileMatch[1] if sameDirMarkdownFileMatch
       @otherDirMarkdowns.push otherDirMarkdownFileMatch[1] if otherDirMarkdownFileMatch
-      @relativeImages.push relativeImageFileMatch[1] if relativeImageFileMatch
 
 
-    @checkRelativeImages(@relativeImages, file.fullPath)
-    @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath)
-    @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath)
+    @checkRelativeImages(@relativeImages, file.fullPath, failures)
+    @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath, failures)
+    @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath, failures)
 
-    return BUILD_SUCCESS
+    failures = _.compact _.flatten failures
+    failures = _.uniq failures
+    failures
 
-  checkRelativeImages: (images, refFile) ->
+  checkRelativeImages: (images, refFile, failures) ->
     _.each images, (file) =>
-      fs.open path.join(@projectDir, 'images', file), 'r', (err, _) =>
-        @printErrorAndReturnFailure(file, refFile) if err
+      try
+        fs.openSync path.join(@projectDir, 'images', file), 'r'
+      catch err
+        @printErrorAndReturnFailure(file, refFile, failures)
 
-  checkSameDirMarkdowns: (files, curPath) ->
+  checkSameDirMarkdowns: (files, curPath, fullPath, failures) ->
     _.each files, (file) =>
-      fs.open path.join(curPath, file), 'r', (err, _) =>
-        @printErrorAndReturnFailure(file) if err
+      try
+        fs.openSync path.join(curPath, file), 'r'
+      catch err
+        @printErrorAndReturnFailure(file, fullPath, failures)
 
-  checkOtherDirMarkdowns: (files, curPath, refFile) ->
+  checkOtherDirMarkdowns: (files, curPath, refFile, failures) ->
     _.each files, (file) =>
       resolvedPath = path.resolve(curPath, file)
-      fs.open resolvedPath, 'r', (err, _) =>
-        @printErrorAndReturnFailure(resolvedPath, refFile) if err
+      try
+        fs.openSync resolvedPath, 'r'
+      catch err
+        @printErrorAndReturnFailure(resolvedPath, refFile, failures)
 
-  printErrorAndReturnFailure: (file, refFile) ->
+  printErrorAndReturnFailure: (file, refFile, failures) ->
     console.log 'Build failed!'
-    console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')"
-    return BUILD_FAILURE
+    console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n"
+    failures.push file
 
 
 module.exports = FileParser

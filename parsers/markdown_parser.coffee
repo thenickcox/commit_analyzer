@@ -5,12 +5,8 @@
 fs     = require('fs')
 marked = require('marked')
 
-#
-# CONSTANTS
-#
-
-BUILD_SUCCESS = 1
-BUILD_FAILURE = 0
+App =
+  failures: []
 
 MarkdownParser =
   parse: (file) ->
@@ -19,9 +15,9 @@ MarkdownParser =
         marked(data)
       catch error
         console.log e
-        console.log "File '#{file.fullPath}' failed markdown parsing."
-        return BUILD_FAILURE
+        console.log "File '#{file.fullPath}' failed markdown parsing.\n"
+        App.failures.push file.fullPath
 
-    BUILD_SUCCESS
+    return App.failures
 
 module.exports = MarkdownParser
