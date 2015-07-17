@@ -14,13 +14,15 @@ _       = require('underscore')
 
 ERROR_CODE_RANGE_START = 400
 
+App =
+  failures: []
 
 RegExplorer =
   link: /(https?:\/\/?)([\da-z\.-]+\.[a-z\.]{2,6}[\/\w\-].*?)"/
 
 LinkParser =
   linkMatches: []
-  parse: (file, failures) ->
+  parse: (file, failed) ->
     console.log "Parsing links...\n\n\n"
 
     output = fs.readFileSync file.fullPath, 'utf-8'
@@ -31,24 +33,26 @@ LinkParser =
       linkMatch = RegExplorer.link.exec(line)
       @linkMatches.push linkMatch[0].slice(0,-1) if linkMatch
 
-    @validateLinks(file.fullPath, failures)
+    @validateLinks(file.fullPath)
 
-  validateLinks: (file, failures, deferred) ->
-    _.each @linkMatches, (link) => @validateLink(link, file, failures)
+  validateLinks: (file) ->
+    _.each @linkMatches, (link) => @validateLink(link, file)
+    failed = if App.failures.length then true else false
+    failed
 
-  validateLink: (link, file, failures) ->
+  validateLink: (link, file) ->
     try
       res = request(link)
       status = res.status
-      @logError(link, null, status, file, failures) if status >= ERROR_CODE_RANGE_START
+      @logError(link, null, status, file) if status >= ERROR_CODE_RANGE_START
     catch error
       @logError(link, error.stack.slice(0, 100), null, file, failures)
 
-  logError: (link, status, errorMsg, file, failures) ->
+  logError: (link, status, errorMsg, file) ->
     extraMsg = if status then "response #{status}." else "error '#{errorMsg}'."
     console.log 'Build failed!'
     console.log "Reaching '#{link}' failed for the following reason: #{extraMsg}"
     console.log "Link referenced in '#{file}'\n"
-    failures.push link
+    App.failures.push link
 
 module.exports = LinkParser

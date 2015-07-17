@@ -26,7 +26,7 @@ FileParser =
   currentPath: ''
   projectDir: path.join(__dirname, '..', '..')
 
-  parse: (file, failures) ->
+  parse: (file, failed) ->
     console.log "Parsing files...\n\n\n"
     @currentPath = file.fullParentDir
 
@@ -45,40 +45,39 @@ FileParser =
       @otherDirMarkdowns.push otherDirMarkdownFileMatch[1] if otherDirMarkdownFileMatch
 
 
-    @checkRelativeImages(@relativeImages, file.fullPath, failures)
-    @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath, failures)
-    @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath, failures)
+    @checkRelativeImages(@relativeImages, file.fullPath)
+    @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath)
+    @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath)
 
-    failures = _.compact _.flatten failures
-    failures = _.uniq failures
-    failures
+    failed = if App.failures.length then true else false
+    failed
 
-  checkRelativeImages: (images, refFile, failures) ->
+  checkRelativeImages: (images, refFile) ->
     _.each images, (file) =>
       try
         fs.openSync path.join(@projectDir, 'images', file), 'r'
       catch err
-        @printErrorAndReturnFailure(file, refFile, failures)
+        @printErrorAndReturnFailure(file, refFile)
 
-  checkSameDirMarkdowns: (files, curPath, fullPath, failures) ->
+  checkSameDirMarkdowns: (files, curPath, fullPath) ->
     _.each files, (file) =>
       try
         fs.openSync path.join(curPath, file), 'r'
       catch err
-        @printErrorAndReturnFailure(file, fullPath, failures)
+        @printErrorAndReturnFailure(file, fullPath)
 
-  checkOtherDirMarkdowns: (files, curPath, refFile, failures) ->
+  checkOtherDirMarkdowns: (files, curPath, refFile) ->
     _.each files, (file) =>
       resolvedPath = path.resolve(curPath, file)
       try
         fs.openSync resolvedPath, 'r'
       catch err
-        @printErrorAndReturnFailure(resolvedPath, refFile, failures)
+        @printErrorAndReturnFailure(resolvedPath, refFile)
 
-  printErrorAndReturnFailure: (file, refFile, failures) ->
+  printErrorAndReturnFailure: (file, refFile) ->
     console.log 'Build failed!'
     console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n"
-    failures.push file
+    App.failures.push file
 
 
 module.exports = FileParser
