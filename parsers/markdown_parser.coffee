@@ -11,7 +11,7 @@ App =
 
 MarkdownParser =
   parse: (file, failed) ->
-    console.log "Parsing JSON front-matter...\n\n\n"
+    console.log "Parsing JSON front-matter in #{file.fullPath}...\n\n\n"
     fs.readFile file.fullPath, 'utf-8', (err, data) ->
       try
         marked(data)

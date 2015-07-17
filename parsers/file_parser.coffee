@@ -28,7 +28,7 @@ FileParser =
 
   parse: (file, failed) ->
     App.failures = []
-    console.log "Parsing files referenced in #{file.name}...\n\n\n"
+    console.log "Parsing files referenced in #{file.fullPath}...\n"
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'
@@ -83,6 +83,7 @@ FileParser =
     console.log 'Build failed!'
     console.log "File '#{file}' not found in this repository (referenced from '#{refFile}')\n"
     App.failures.push file
+
 
 
 module.exports = FileParser
