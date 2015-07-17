@@ -2,7 +2,7 @@
 # Modules
 #
 
-fs         = require('fs')
+fs         = require('graceful-fs')
 path       = require('path')
 marked     = require('marked')
 _          = require('underscore')
@@ -55,14 +55,16 @@ FileParser =
   checkRelativeImages: (images, refFile) ->
     _.each images, (file) =>
       try
-        fs.openSync path.join(@projectDir, 'images', file), 'r'
+        fd = fs.openSync path.join(@projectDir, 'images', file), 'r'
+        fs.closeSync(fd)
       catch err
         @printErrorAndReturnFailure(file, refFile)
 
   checkSameDirMarkdowns: (files, curPath, fullPath) ->
     _.each files, (file) =>
       try
-        fs.openSync path.join(curPath, file), 'r'
+        fd = fs.openSync path.join(curPath, file), 'r'
+        fs.closeSync(fd)
       catch err
         @printErrorAndReturnFailure(file, fullPath)
 
@@ -70,7 +72,8 @@ FileParser =
     _.each files, (file) =>
       resolvedPath = path.resolve(curPath, file)
       try
-        fs.openSync resolvedPath, 'r'
+        fd = fs.openSync resolvedPath, 'r'
+        fs.closeSync(fd)
       catch err
         @printErrorAndReturnFailure(resolvedPath, refFile)
 

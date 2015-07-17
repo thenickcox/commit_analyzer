@@ -5,7 +5,6 @@
 readdirp     = require('readdirp')
 path         = require('path')
 es           = require('event-stream')
-fs           = require('fs')
 coffeescript = require('coffee-script')
 _            = require('underscore')
 
@@ -26,10 +25,9 @@ App =
       _.each @parsers, (parser) =>
         @failed = parser.parse(file, @failed)
     , (err, res) =>
-      console.log "value of failed: #{@failed}"
       if @failed then process.exit(1) else process.exit(0)
 
-  parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
+  parsers: [frontMatterParser, markdownParser, fileParser]
   #parsers: [fileParser]
 
   # Uncomment for production files
