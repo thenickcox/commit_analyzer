@@ -18,9 +18,6 @@ ERROR_CODE_RANGE_START = 400
 RegExplorer =
   link: /(https?:\/\/?)([\da-z\.-]+\.[a-z\.]{2,6}[\/\w\-].*?)"/
 
-App =
-  failures: []
-
 LinkParser =
   linkMatches: []
   parse: (file, failures) ->

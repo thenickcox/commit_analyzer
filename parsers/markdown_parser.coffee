@@ -5,19 +5,17 @@
 fs     = require('fs')
 marked = require('marked')
 
-App =
-  failures: []
 
 MarkdownParser =
-  parse: (file) ->
+  parse: (file, failures) ->
     fs.readFile file.fullPath, 'utf-8', (err, data) ->
       try
         marked(data)
       catch error
         console.log e
         console.log "File '#{file.fullPath}' failed markdown parsing.\n"
-        App.failures.push file.fullPath
+        failures.push file.fullPath
 
-    return App.failures
+    return failures
 
 module.exports = MarkdownParser
