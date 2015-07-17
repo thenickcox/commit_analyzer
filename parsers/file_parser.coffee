@@ -27,6 +27,7 @@ FileParser =
   projectDir: path.join(__dirname, '..', '..')
 
   parse: (file, failures) ->
+    console.log "Parsing files...\n\n\n"
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'

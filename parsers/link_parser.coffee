@@ -24,7 +24,7 @@ App =
 LinkParser =
   linkMatches: []
   parse: (file, failures) ->
-    deferred = Q.defer()
+    console.log "Parsing links...\n\n\n"
 
     output = fs.readFileSync file.fullPath, 'utf-8'
     markdown = marked(output).split("\n")
@@ -34,12 +34,10 @@ LinkParser =
       linkMatch = RegExplorer.link.exec(line)
       @linkMatches.push linkMatch[0].slice(0,-1) if linkMatch
 
-    @validateLinks(file.fullPath, failures, deferred)
-    deferred.promise
+    @validateLinks(file.fullPath, failures)
 
   validateLinks: (file, failures, deferred) ->
     _.each @linkMatches, (link) => @validateLink(link, file, failures)
-    deferred.resolve(failures)
 
   validateLink: (link, file, failures) ->
     try
