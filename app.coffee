@@ -33,16 +33,16 @@ App =
       failures = _.uniq failures
       if failures.length then process.exit(1) else process.exit(0)
 
-  #parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
-  parsers: [linkParser, fileParser]
+  parsers: [frontMatterParser, markdownParser, fileParser, linkParser]
+  #parsers: [linkParser, fileParser]
 
   # Uncomment for production files
-  #directoryFilters: ['!node_modules', '!Release Notes']
-  #fileFilters: '*.md'
+  directoryFilters: ['!node_modules', '!Release Notes']
+  fileFilters: '*.md'
 
   # Uncomment for test files
-  directoryFilters: ['Accounts & Users']
-  fileFilters: '*.md'
+  #directoryFilters: ['Accounts & Users']
+  #fileFilters: '*.md'
 
   readOpts: ->
     root: path.join(__dirname, '..')
