@@ -38,7 +38,7 @@ App =
 
   # Uncomment for test files
   #directoryFilters: ['Accounts & Users']
-  #fileFilters: '*.md'
+  #fileFilters: 'creating-users.md'
 
   readOpts: ->
     root: path.join(__dirname, '..')
