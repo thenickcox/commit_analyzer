@@ -12,8 +12,8 @@ App =
   failures: []
 
 RegExplorer =
-  sameDirMarkdownLink:  /href="(?!\.\.)(.*\.md)/
-  otherDirMarkdownLink: /href="(\.\..*?\.md)/
+  sameDirMarkdownLink:  /href="(?!http)(?!\.\.)(.*\.md)/
+  otherDirMarkdownLink: /href="(?!http)(\.\..*?\.md)/
   relativeImageLink:    /.*"(\.\.\/images.*?\.png|jpg)/
 
 FileParser =
