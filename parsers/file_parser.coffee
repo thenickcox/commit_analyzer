@@ -28,7 +28,7 @@ FileParser =
 
   parse: (file, failed) ->
     App.failures = []
-    console.log "Parsing files referenced in #{file.fullPath}...\n"
+    console.log "."
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'

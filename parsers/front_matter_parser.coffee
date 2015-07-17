@@ -17,7 +17,7 @@ keys = (obj) -> Object.getOwnPropertyNames(obj)
 
 FrontMatterParser =
   parse: (file, failed) ->
-    console.log "Parsing JSON front-matter in #{file.fullPath}...\n"
+    console.log "."
     return if fileIsIgnored(file.name)
 
     output = frontMatter.parse fs.readFileSync(file.fullPath, 'utf-8')
