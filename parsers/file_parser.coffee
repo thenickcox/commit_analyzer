@@ -2,7 +2,7 @@
 # Modules
 #
 
-fs         = require('graceful-fs')
+fs         = require('fs')
 path       = require('path')
 marked     = require('marked')
 _          = require('underscore')
@@ -27,7 +27,8 @@ FileParser =
   projectDir: path.join(__dirname, '..', '..')
 
   parse: (file, failed) ->
-    console.log "Parsing files...\n\n\n"
+    App.failures = []
+    console.log "Parsing files referenced in #{file.name}...\n\n\n"
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'
@@ -44,12 +45,13 @@ FileParser =
       @sameDirMarkdowns.push sameDirMarkdownFileMatch[1] if sameDirMarkdownFileMatch
       @otherDirMarkdowns.push otherDirMarkdownFileMatch[1] if otherDirMarkdownFileMatch
 
-
     @checkRelativeImages(@relativeImages, file.fullPath)
     @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath)
     @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath)
 
     failed = if App.failures.length then true else false
+    @relativeImages = @sameDirMarkdowns = @otherDirMarkdowns = []
+
     failed
 
   checkRelativeImages: (images, refFile) ->
@@ -60,13 +62,13 @@ FileParser =
       catch err
         @printErrorAndReturnFailure(file, refFile)
 
-  checkSameDirMarkdowns: (files, curPath, fullPath) ->
+  checkSameDirMarkdowns: (files, curPath, refFile) ->
     _.each files, (file) =>
       try
         fd = fs.openSync path.join(curPath, file), 'r'
         fs.closeSync(fd)
       catch err
-        @printErrorAndReturnFailure(file, fullPath)
+        @printErrorAndReturnFailure(file, refFile)
 
   checkOtherDirMarkdowns: (files, curPath, refFile) ->
     _.each files, (file) =>
