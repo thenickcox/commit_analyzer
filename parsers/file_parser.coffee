@@ -19,13 +19,13 @@ RegExplorer =
 
 FileParser =
   relativeImages: []
-  absoluteImages: []
 
   sameDirMarkdowns:  []
   otherDirMarkdowns: []
 
   currentPath: ''
-  projectDir: path.join(__dirname, '..', '..')
+
+  files: []
 
   parse: (file, failed) ->
     App.failures = []
@@ -46,32 +46,16 @@ FileParser =
       @sameDirMarkdowns.push sameDirMarkdownFileMatch[1] if sameDirMarkdownFileMatch
       @otherDirMarkdowns.push otherDirMarkdownFileMatch[1] if otherDirMarkdownFileMatch
 
-    @checkRelativeImages(@relativeImages, file.fullPath)
-    @checkSameDirMarkdowns(@sameDirMarkdowns, @currentPath, file.fullPath)
-    @checkOtherDirMarkdowns(@otherDirMarkdowns, @currentPath, file.fullPath)
+      @files = @relativeImages.concat(@sameDirMarkdowns, @otherDirMarkdowns)
+
+    @checkFiles(@files, @currentPath, file.fullPath)
 
     failed = true if App.failures.length
     @relativeImages = @sameDirMarkdowns = @otherDirMarkdowns = []
 
     failed
 
-  checkRelativeImages: (images, refFile) ->
-    _.each images, (file) =>
-      try
-        fd = fs.openSync path.join(@projectDir, 'images', file), 'r'
-        fs.closeSync(fd)
-      catch err
-        @printErrorAndReturnFailure(file, refFile)
-
-  checkSameDirMarkdowns: (files, curPath, refFile) ->
-    _.each files, (file) =>
-      try
-        fd = fs.openSync path.join(curPath, file), 'r'
-        fs.closeSync(fd)
-      catch err
-        @printErrorAndReturnFailure(file, refFile)
-
-  checkOtherDirMarkdowns: (files, curPath, refFile) ->
+  checkFiles: (files, curPath, refFile) ->
     _.each files, (file) =>
       resolvedPath = path.resolve(curPath, file)
       try
