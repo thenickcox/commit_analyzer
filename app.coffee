@@ -55,8 +55,11 @@ App =
     _.indexOf(Ignored.files, file) >= 0
 
   loadIgnored: ->
-    files = fs.readFileSync '../commit_analyzer_ignore.txt', 'utf-8'
-    files = files.split('\n')
-    _.each files, (file) -> Ignored.files.push file
+    try
+      files = fs.readFileSync '../commit_analyzer_ignore.txt', 'utf-8'
+      files = files.split('\n')
+      _.each files, (file) -> Ignored.files.push file
+    catch err
+      console.log "\n\nunable to find commit_analyzer_ignore.txt file; not ignoring any files...\n\n"
 
 App.analyze()
