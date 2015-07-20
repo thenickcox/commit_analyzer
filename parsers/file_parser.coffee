@@ -81,7 +81,7 @@ FileParser =
         @printErrorAndReturnFailure(resolvedPath, refFile)
 
   printErrorAndReturnFailure: (file, refFile) ->
-    console.log "\nFile '#{file}' not found in this repository (referenced from '#{refFile}')\n".red
+    console.log "\nFile '#{file}' not found. Is the path correct? (Referenced from '#{refFile}')".red
     App.failures.push file
 
   printWorkingIndicator: ->
