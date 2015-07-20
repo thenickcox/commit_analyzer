@@ -13,15 +13,17 @@ App =
   failures: []
 
 RegExplorer =
-  sameDirMarkdownLink:  /href="(?!http)(?!\/\/)(?!\.\.)(.*\.md)/
-  otherDirMarkdownLink: /href="(?!http)(\.\..*?\.md)/
-  relativeImageLink:    /.*"(\.\.\/images.*?\.png|jpg)/
+  # not beginning with http or mailto or a ? (? bc `marked` parses some regex in their code as links…)
+  # not beginning with "// (markdown shortcut link)
+  # capture below
+  #  any chars
+  #  capture the anchor link (which is optional)
+  #  capture the final double quote
+  filePath: /href="(?!\?|http|mailto)(?!\/\/)((?!#)(.*?)((#.*?)?)("))/
 
 FileParser =
-  relativeImages: []
-
-  sameDirMarkdowns:  []
-  otherDirMarkdowns: []
+  imagePaths: []
+  markdownPaths:  []
 
   currentPath: ''
 
@@ -38,20 +40,13 @@ FileParser =
     _.each markdown, (line) =>
       line = line.replace(/&amp;/g, '&')
 
-      sameDirMarkdownFileMatch = RegExplorer.sameDirMarkdownLink.exec(line)
-      otherDirMarkdownFileMatch = RegExplorer.otherDirMarkdownLink.exec(line)
-      relativeImageFileMatch = RegExplorer.relativeImageLink.exec(line)
-
-      @relativeImages.push relativeImageFileMatch[1] if relativeImageFileMatch
-      @sameDirMarkdowns.push sameDirMarkdownFileMatch[1] if sameDirMarkdownFileMatch
-      @otherDirMarkdowns.push otherDirMarkdownFileMatch[1] if otherDirMarkdownFileMatch
-
-      @files = @relativeImages.concat(@sameDirMarkdowns, @otherDirMarkdowns)
+      filePathMatch = RegExplorer.filePath.exec(line)
+      @files.push filePathMatch[2] if filePathMatch
 
     @checkFiles(@files, @currentPath, file.fullPath)
 
     failed = true if App.failures.length
-    @relativeImages = @sameDirMarkdowns = @otherDirMarkdowns = []
+    @files = []
 
     failed
 
