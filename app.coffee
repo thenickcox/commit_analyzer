@@ -55,7 +55,7 @@ App =
     _.indexOf(Ignored.files, file) >= 0
 
   loadIgnored: ->
-    files = fs.readFileSync 'commit_analyzer_ignore.txt', 'utf-8'
+    files = fs.readFileSync '../commit_analyzer_ignore.txt', 'utf-8'
     files = files.split('\n')
     _.each files, (file) -> Ignored.files.push file
 
