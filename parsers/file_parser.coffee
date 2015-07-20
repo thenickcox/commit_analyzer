@@ -13,7 +13,7 @@ App =
   failures: []
 
 RegExplorer =
-  sameDirMarkdownLink:  /href="(?!http)(?!\.\.)(.*\.md)/
+  sameDirMarkdownLink:  /href="(?!http)(?!\/\/)(?!\.\.)(.*\.md)/
   otherDirMarkdownLink: /href="(?!http)(\.\..*?\.md)/
   relativeImageLink:    /.*"(\.\.\/images.*?\.png|jpg)/
 
@@ -29,7 +29,7 @@ FileParser =
 
   parse: (file, failed) ->
     App.failures = []
-    process.stdout.write "."
+    @printWorkingIndicator()
     @currentPath = file.fullParentDir
 
     output = fs.readFileSync file.fullPath, 'utf-8'
@@ -84,6 +84,8 @@ FileParser =
     console.log "\nFile '#{file}' not found in this repository (referenced from '#{refFile}')\n".red
     App.failures.push file
 
+  printWorkingIndicator: ->
+    process.stdout.write "."
 
 
 module.exports = FileParser
