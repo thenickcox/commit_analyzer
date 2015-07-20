@@ -60,7 +60,7 @@ FileParser =
         @printErrorAndReturnFailure(resolvedPath, refFile)
 
   printErrorAndReturnFailure: (file, refFile) ->
-    console.log "\nFile '#{file}' not found. Is the path correct? (Referenced from '#{refFile}')".red
+    console.log "\nFile '#{file}' not found. Is there a file extension? Are the file extension and path correct? (Referenced from '#{refFile}')".red
     App.failures.push file
 
   printWorkingIndicator: ->
