@@ -58,6 +58,7 @@ App =
     try
       files = fs.readFileSync '../commit_analyzer_ignore.txt', 'utf-8'
       files = files.split('\n')
+      console.log "\n\nIgnoring #{files.join(', ')}"
       _.each files, (file) -> Ignored.files.push file
     catch err
       console.log "\n\nunable to find commit_analyzer_ignore.txt file; not ignoring any files...\n\n"
